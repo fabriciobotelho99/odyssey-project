@@ -2,7 +2,7 @@
 Identification of archaeological sites in aerial image using deep learning
 
 ## first approach using archaeological data
-This first work was based on this paper, https://doi.org/10.3390/rs14030553, whitch contains supplementary materials, for example, the dataset and the code used. The authors used the mask R-CNN algorithm, whitch uses the pixellib library. The Mask R-CNN is based on Fast R-CNN, but while this last one has two outs by the object, bounding boxes and class, the mask R-CNN has three outs, because it has the mask of the object which is a region of interest. 
+This first work was based on this paper, https://doi.org/10.3390/rs14030553, which contains supplementary materials, for example, the dataset and the code used. The authors used the mask R-CNN algorithm, which uses the pixellib library. The Mask R-CNN is based on Fast R-CNN, but while this last one has two outs by the object, bounding boxes and class, the mask R-CNN has three outs, because it has the mask of the object which is a region of interest. 
 
 The dataset is composed of images obtained through a helicopter. Firstly was used the labelme tool to create the annotated data with JSON files in COCO format. 
 The number total of images is 384, and the files were split into 287 images to train, 71 for validation and 26 for the test. Each JSON file is composed of images ID, category name, pixel values, bounding boxes coordinates and the dimensions of images. There are 3 classes of archaeological objects, qanat, ruined structures and mounded sites.
