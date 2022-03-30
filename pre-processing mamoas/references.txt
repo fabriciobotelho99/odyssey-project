@@ -1,0 +1,11 @@
+resized images:
+	https://www.tutorialkart.com/opencv/python/opencv-python-resize-image/
+
+augmentation images:
+	https://github.com/albumentations-team/albumentations
+
+split folders:
+	https://github.com/jfilter/split-folders
+
+to resolve a problem with albumentations library:
+	https://github.com/albumentations-team/albumentations/issues/459#issuecomment-734454278
