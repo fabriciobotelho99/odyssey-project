@@ -1,0 +1,167 @@
+//Author: Fabricio Botelho
+//Date: 25/03/22
+
+//read LRM - local relief model
+var LRM = ee.Image('users/fabriziobotelho/tiff_files');
+
+//read info about LRM
+var geometry = LRM.geometry();
+Map.setCenter(-8.471029169362385, 41.85219308049295, 11);
+Map.addLayer(LRM);
+var lrm_info = LRM.getInfo();
+print(lrm_info);
+var b1 = ee.List(lrm_info.bands).get(0);
+var b2 = ee.List(lrm_info.bands).get(1);
+var b3 = ee.List(lrm_info.bands).get(2);
+var b4 = ee.List(lrm_info.bands).get(3);
+
+
+//read shape file of arcos region
+var shape_arcos = ee.FeatureCollection('users/fabriziobotelho/MamoasArcos');
+shape_arcos = shape_arcos.geometry();
+var coordinates_arcos = shape_arcos.coordinates()
+
+//add the respective points to the map
+Map.addLayer(shape_arcos, {color: 'Red'}, 'shape_arcos');
+
+//read shape file of laboreiro region
+var shape_lab = ee.FeatureCollection('users/fabriziobotelho/MamoasLaboreiro');
+shape_lab = shape_lab.geometry();
+var coordinates_lab = shape_lab.coordinates()
+
+//add the respective points to the map
+Map.addLayer(shape_lab, {color: 'green'}, 'shape_lab');
+
+
+//print(shape_arcos) //Debug
+
+//export each image of archaeological object of arcos region
+for(var i=0; i < 50; i++){
+  
+  var lon_lat = coordinates_arcos.get(i); //get geo-coordinates
+  var lon = ee.List(lon_lat).get(0);
+  var lat = ee.List(lon_lat).get(1);
+  
+  var mamoa = ee.FeatureCollection(
+        [
+          //draw a polygon for each archaeological object
+          ee.Feature(
+            ee.Geometry.Polygon(
+                [[[ee.Number(lon).subtract(0.00027), ee.Number(lat).subtract(0.0002)],
+                  [ee.Number(lon).add(0.00027),      ee.Number(lat).subtract(0.0002)],
+                  [ee.Number(lon).add(0.00027),      ee.Number(lat).add(0.0002)],
+                  [ee.Number(lon).subtract(0.00027), ee.Number(lat).add(0.0002)],
+                  [ee.Number(lon).subtract(0.00027), ee.Number(lat).subtract(0.0002)]]]),
+            {
+              "class": 'mamoa',
+              "system:index": ee.Number(i).format('%1d')
+            })]);
+  
+  /*Map.addLayer(mamoa,
+             {'color': 'blue'},
+             'Geometry [black]: multiPoint');*/
+  
+  //export the image inside of polygon with 1 meter by pixel          
+  Export.image.toDrive({
+  image: LRM,
+  description: i + "laboreiro",
+  scale: 1, //1m/px
+  region: mamoa
+  });
+}
+
+//export each image of archaeological object of laboreiro region
+for(var i=0; i < 85; i++){
+  var lon_lat = coordinates_lab.get(i);
+  var lon = ee.List(lon_lat).get(0);
+  var lat = ee.List(lon_lat).get(1);
+  
+  var mamoa_arcos = ee.FeatureCollection(
+        [
+          //draw a polygon for each archaeological object
+          ee.Feature(
+            ee.Geometry.Polygon(
+                [[[ee.Number(lon).subtract(0.00027), ee.Number(lat).subtract(0.0002)],
+                  [ee.Number(lon).add(0.00027),      ee.Number(lat).subtract(0.0002)],
+                  [ee.Number(lon).add(0.00027),      ee.Number(lat).add(0.0002)],
+                  [ee.Number(lon).subtract(0.00027), ee.Number(lat).add(0.0002)],
+                  [ee.Number(lon).subtract(0.00027), ee.Number(lat).subtract(0.0002)]]]),
+            {
+              "class": 'mamoa_arcos',
+              "system:index": ee.Number(i).format('%1d')
+            })]);
+  
+  /*Map.addLayer(mamoa_arcos,
+             {'color': 'blue'},
+             'Geometry [black]: multiPoint');*/
+  
+  //export the image inside of polygon with 1 meter by pixel        
+  Export.image.toDrive({
+  image: LRM, 
+  description: i + "arcos",
+  scale: 1, //1m/px
+  region: mamoa_arcos
+  });
+}
+
+
+//to obtain images without archaeological objects.
+//draw a polygon in an uninteresting region ("no mamoas") and get random point coordinates
+var region = ee.Geometry.Polygon(
+                [[[-8.847997553151448,41.69985260163563],
+                  [-8.518407709401448,41.69985260163563],
+                  [-8.518407709401448,41.89233013798604],
+                  [-8.847997553151448,41.89233013798604],
+                  [-8.847997553151448,41.69985260163563]]]);
+                  
+                  
+// Generate 100 random points with the region.
+var randomPoints = ee.FeatureCollection.randomPoints(
+    {region: region, points: 100, seed: 0, maxError: 1});
+
+Map.addLayer(randomPoints, {color: 'yellow'}, 'Random points');
+
+randomPoints = randomPoints.geometry();
+randomPoints = randomPoints.coordinates();
+print(randomPoints);
+
+for (var i=0; i < 100; i++){
+  var lon_lat = randomPoints.get(i);
+  var lon = ee.List(lon_lat).get(0);
+  var lat = ee.List(lon_lat).get(1);
+  
+  var not_mamoa = ee.FeatureCollection(
+        [
+          ee.Feature(
+            ee.Geometry.Polygon(
+                [[[ee.Number(lon).subtract(0.00027), ee.Number(lat).subtract(0.0002)],
+                  [ee.Number(lon).add(0.00027),      ee.Number(lat).subtract(0.0002)],
+                  [ee.Number(lon).add(0.00027),      ee.Number(lat).add(0.0002)],
+                  [ee.Number(lon).subtract(0.00027), ee.Number(lat).add(0.0002)],
+                  [ee.Number(lon).subtract(0.00027), ee.Number(lat).subtract(0.0002)]]]),
+            {
+              "class": 'not_mamoa',
+              "system:index": ee.Number(i).format('%1d')
+            })]);
+  
+    Map.addLayer(not_mamoa,
+             {'color': 'blue'},
+             'Geometry [black]: multiPoint');
+    
+  Export.image.toDrive({
+  image: LRM,
+  description: "not_mamoa" + i,
+  scale: 1, //1m/px
+  region: not_mamoa
+  });
+    
+}
+
+
+
+
+
+    
+    
+    
+    

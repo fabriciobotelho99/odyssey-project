@@ -1,0 +1,280 @@
+//Author: Fabricio Botelho
+//date: 26/03/22
+
+
+//upload and get information about the LRM - Local Relief Model
+var LRM = ee.Image('users/fabriziobotelho/tiff_files');
+var geometry = LRM.geometry();
+Map.setCenter(-8.471029169362385, 41.85219308049295, 9); //zoom = 17 means scale = 1m/px 
+Map.addLayer(LRM);
+
+var lrm_info = LRM.getInfo();
+print(lrm_info);
+print('projection of LRM:', LRM.projection())
+
+print(geometry.coordinates().get(0));
+
+//get coordinates of polygon witch corresponds to the LRM
+var image_limits = ee.Geometry.Polygon([ee.List(geometry.coordinates().get(0))]);
+
+Map.addLayer(image_limits,
+           {'color': 'blue'},
+           'Geometry [black]: MultiPoint');
+
+var bounds = image_limits.bounds();
+bounds = bounds.coordinates();
+bounds = bounds.get(0);
+
+var points = ee.Geometry.MultiPoint(bounds);
+
+Map.addLayer(points,
+           {'color': 'yellow'},
+           'Geometry [black]: MultiPoint');
+print('points', points);
+
+//get the corner coordinates of upper left and lower rigth
+var upper_left = [-8.907277129492169, 42.16335245423417];
+var lower_right = [-8.06051504207768, 41.59280385023923];
+
+var points = ee.Geometry.MultiPoint([upper_left, lower_right]);
+
+Map.addLayer(points,
+           {'color': 'red'},
+           'Geometry [black]: Point');
+print('upper left: ', upper_left, 'lower right: ', lower_right);
+
+
+//this function server to get the dimentions in pixels of LRM image
+//w is the width
+//h is the hight
+function getDimentionsImage(img){
+  var imgDescription = ee.Algorithms.Describe(img);
+  var w = ee.List(ee.Dictionary(ee.List(ee.Dictionary(imgDescription).get("bands")).get(0)).get("dimensions")).get(0);
+  var h = ee.List(ee.Dictionary(ee.List(ee.Dictionary(imgDescription).get("bands")).get(0)).get("dimensions")).get(1);
+  
+  return [w, h];
+};
+
+var dimentions = getDimentionsImage(LRM);
+print("dimentions of image:", dimentions);
+
+var width = ee.List(dimentions).get(0);
+var height = ee.List(dimentions).get(1);
+
+
+// Dimentions of DTM are 69977x63086 pixels
+// Convertion of geo-coordinates to pixel coordinates
+// (x, y)              --> (x_geo, y_geo)
+// (0, 0)              --> (-8.907277129492169, 42.16335245423417)
+// (width-1, height-1) --> (-8.06051504207768, 41.59280385023923)
+// x = x_geo * m1 + b1
+// y = y_geo * m2 + b2
+
+var x_geo1 = ee.List(upper_left).get(0);
+var y_geo1 = ee.List(upper_left).get(1);
+var x_geo2 = ee.List(lower_right).get(0);
+var y_geo2 = ee.List(lower_right).get(1);
+
+var x1 = ee.Number(0);
+var y1 = ee.Number(0);
+var x2 = ee.Number(width).subtract(1);
+var y2 = ee.Number(height).subtract(1);
+
+print(x_geo1, y_geo1, x_geo2, y_geo2, x1, y1, x2, y2);
+
+//calculate the equation witch converts the geo-coordinates to pixel coordinates
+var m1 = x1.subtract(x2).divide(ee.Number(x_geo1).subtract(x_geo2));
+var b1 = ee.Number(x1).subtract(ee.Number(x_geo1).multiply(m1));
+print('m1:', m1, 'b1:', b1);
+var m2 = y1.subtract(y2).divide(ee.Number(y_geo1).subtract(y_geo2));
+var b2 = y1.subtract(ee.Number(y_geo1).multiply(m2));
+print('m2:', m2, 'b2:', b2);
+
+//this function converts the geo-coordinates to pixel coordinates
+//x and y are pixel values of the coordinate 
+function convert_GeoCoord_to_PixelCoord(geocoordinate, m1, m2, b1, b2){
+  var x_geo = ee.List(geocoordinate).get(0);
+  var y_geo = ee.List(geocoordinate).get(1);
+  var x = ee.Number(x_geo).multiply(m1).add(b1).round(); 
+  var y = ee.Number(y_geo).multiply(m2).add(b2).round(); 
+  
+  return [x, y];
+};
+
+//check correct values for upper left and lower right
+print('upper_left_pixels', convert_GeoCoord_to_PixelCoord(upper_left, m1, m2, b1, b2));
+print('lower_right_pixels', convert_GeoCoord_to_PixelCoord(lower_right, m1, m2, b1, b2));
+
+//read shape files
+var shape_arcos = ee.FeatureCollection('users/fabriziobotelho/MamoasArcos');
+shape_arcos = shape_arcos.geometry();
+var coordinates_arcos = shape_arcos.coordinates()
+Map.addLayer(shape_arcos, {color: 'red'}, 'shape_arcos');
+
+var shape_lab = ee.FeatureCollection('users/fabriziobotelho/MamoasLaboreiro');
+shape_lab = shape_lab.geometry();
+var coordinates_lab = shape_lab.coordinates()
+Map.addLayer(shape_lab, {color: 'green'}, 'shape_lab');
+
+var geocoord; 
+var lab_pixel_coord;
+var arcos_pixel_coord;
+var arcos_pixel = ee.List([]);
+var lab_pixel = ee.List([]);
+
+//convertion of mamoas geo-coordinates to pixel coordinates 
+for(var i = 0; i < 51; i++){
+  geocoord = coordinates_arcos.get(i);
+  arcos_pixel_coord = convert_GeoCoord_to_PixelCoord(geocoord, m1, m2, b1, b2);
+  arcos_pixel = arcos_pixel.add(arcos_pixel_coord);
+}
+//print(arcos_pixel);
+
+for(var i = 0; i < 85; i++){
+  geocoord = coordinates_lab.get(i);
+  lab_pixel_coord = convert_GeoCoord_to_PixelCoord(geocoord, m1, m2, b1, b2);
+  lab_pixel = lab_pixel.add(lab_pixel_coord);
+}
+//print(lab_pixel);
+
+//this function does the inverse of the previous function
+function convert_PixelCoord_to_GeoCoord(pixelcoordinate, m1, m2, b1, b2){
+  var x = ee.List(pixelcoordinate).get(0);
+  var y = ee.List(pixelcoordinate).get(1);
+  var x_geo = ee.Number(x).subtract(b1).divide(m1);
+  var y_geo = ee.Number(y).subtract(b2).divide(m2);
+  
+  return [x_geo, y_geo];
+};
+
+//just an example to get a polygon through a specific coordinate
+var c1 = convert_GeoCoord_to_PixelCoord([-8.444814717835758,41.96010617376838], m1, m2, b1, b2);
+print('c1', c1)
+var c11 = ee.List(c1).get(0);  //x
+var c12 = ee.List(c1).get(1);  //y
+var c21 = ee.Number(c11).add(645); var c22 = ee.Number(c12);
+var c31 = ee.Number(c11); var c32 = ee.Number(c12).add(640);
+var c41 = ee.Number(c11).add(645); var c42 = ee.Number(c12).add(645);
+
+//print(c11, c12, c21, c22, c31, c32, c41, c42);
+
+var x1 = convert_PixelCoord_to_GeoCoord([c11, c12], m1, m2, b1, b2);
+var x2 = convert_PixelCoord_to_GeoCoord([c21, c22], m1, m2, b1, b2);
+var x3 = convert_PixelCoord_to_GeoCoord([c31, c32], m1, m2, b1, b2);
+var x4 = convert_PixelCoord_to_GeoCoord([c41, c42], m1, m2, b1, b2);
+//print(x1);
+var square = ee.Geometry.Polygon([[ee.List(x1).get(0), ee.List(x1).get(1)], [ee.List(x2).get(0), ee.List(x2).get(1)], [ee.List(x4).get(0), ee.List(x4).get(1)], [ee.List(x3).get(0), ee.List(x3).get(1)]]);
+//print(square);
+
+/*Map.addLayer(square,
+           {'color': 'yellow'},
+           'Geometry [black]: MultiPoint');*/
+
+
+//division of LRM image in equal blocks with a resolution of 640x640 pixels and a scale equal 1 meter/pixel
+var resolution = 640;
+
+var number_x_points = ee.Number(width).divide(resolution).round().add(1);
+var number_y_points = ee.Number(height).divide(resolution).round().add(1);
+print('n_x_points, n_y_points:', number_x_points, number_y_points);
+
+//this function counts the number of archaeological objects in each image of block
+function CountNumberOfMamoas(Xmin, Xmax, Ymin, Ymax){
+  var count = 0;
+  var x, y;
+  var coord = ee.List([]);
+  
+  //read mamoas of arcos (51 mamoas)
+  for(var ii = 0; ii < 51; ii++){
+    coord = arcos_pixel.get(ii);
+    x = ee.Number(ee.List(coord).get(0));
+    y = ee.Number(ee.List(coord).get(1));
+    
+    var t1 = x.gte(Xmin);
+    var t2 = x.lte(Xmax);
+    var t3 = y.gte(Ymin); 
+    var t4 = y.lte(Ymax);
+    t4 = ee.Number(t4).multiply(t1).multiply(t2).multiply(t3);
+    
+    count = ee.Number(count).add(t4);
+  }
+  //read mamoas of laboreiro (85 mamoas)
+  for(var iii = 0; iii < 85; iii++){
+    coord = lab_pixel.get(iii);
+    x = ee.Number(ee.List(coord).get(0));
+    y = ee.Number(ee.List(coord).get(1));
+  
+    var t1 = x.gte(Xmin);
+    var t2 = x.lte(Xmax);
+    var t3 = y.gte(Ymin);
+    var t4 = y.lte(Ymax);
+    t4 = ee.Number(t4).multiply(t1).multiply(t2).multiply(t3);
+    
+    count = ee.Number(count).add(t4);
+  }
+  
+  return count;
+}
+
+//just an example to verify if the function works correctly
+//var n = CountNumberOfMamoas(38189,38389, 22381, 22581);
+
+var points = ee.List([[]]);
+var x11 = 0, x12 = 0, x21 = 0, x22 = 0, x31 = 0, x32 = 0, x41 = 0, x42 = 0;
+x42 = x42 + resolution;
+x32 = x32 + resolution;
+
+//this for loops serves to do the block and crop the respective image if number of mamoas inside of image is > 0
+//99 is the value of width/640 and 109 is the value of height/604, note that 640 is the resolution
+for(var i = 0; i < 99; i++){ // columns
+  for(var j = 0; j < 109; j++){ // rows
+    x11 = x21;
+    x21 = x21 + resolution;
+    x41 = x31;
+    x31 = x31 + resolution;
+    
+    //print(x11, x12, x21, x22, x31, x32, x41, x42);
+    var x1 = convert_PixelCoord_to_GeoCoord([x11, x12], m1, m2, b1, b2);
+    var x2 = convert_PixelCoord_to_GeoCoord([x21, x22], m1, m2, b1, b2);
+    var x3 = convert_PixelCoord_to_GeoCoord([x31, x32], m1, m2, b1, b2);
+    var x4 = convert_PixelCoord_to_GeoCoord([x41, x42], m1, m2, b1, b2);
+    
+    var block = ee.Geometry.Polygon([[ee.List(x1).get(0), ee.List(x1).get(1)], [ee.List(x2).get(0), ee.List(x2).get(1)], [ee.List(x3).get(0), ee.List(x3).get(1)], [ee.List(x4).get(0), ee.List(x4).get(1)]]);
+    
+    var nMamoas = CountNumberOfMamoas(x11, x31, x12, x32);
+
+    //IMPORTANTE NOTE:
+      //this if not works correctly because there is an error probably related with google server
+      //this problem was resolved in google colab with python language whitch allow connect to the google earth engine
+      //see CreateDataset.ipynb file!
+      
+    //if(ee.Number(nMamoas).getInfo() >= 1){
+    
+        //export the image inside of polygon with 1 meter by pixel          
+        /*Export.image.toDrive({
+        image: LRM,
+        description: i + "laboreiro",
+        scale: 1, //1m/px
+        region: mamoa
+        });*/
+        
+    //}
+  }
+  
+  
+  x11 = 0;
+  x21 = 0;
+  x41 = 0;
+  x31 = 0;
+  x12 = x12 + resolution;
+  x22 = x22 + resolution;
+  x42 = x42 + resolution;
+  x32 = x32 + resolution;
+}
+
+//just to debug
+print(block)
+Map.addLayer(block,
+           {'color': 'green'},
+           'Geometry [black]: MultiPoint');
+
