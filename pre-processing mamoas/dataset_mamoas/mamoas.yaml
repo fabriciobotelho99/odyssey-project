@@ -1,0 +1,6 @@
+train: /content/drive/MyDrive/dataset_mamoas/train/data/
+val: /content/drive/MyDrive/dataset_mamoas/val/data/
+
+nc: 1
+
+names: ['mamoa']
