@@ -17,7 +17,7 @@ The results were not better than the mask R-CNN approach, due to the same reason
 # LiDAR Data
 
 ## Preprocessing
-![image1](C:\Users\fabri\Desktop\5ano\odyssey-project\preprocessing mamoas\Imagem9.png)
+![image1](https://github.com/fabriciobotelho99/odyssey-project/blob/main/Image9.png?raw=true)
 
 The preprocessing of data has the main objective to get the dataset with images and annotations. Initially, there is a LRM (Local Relief Model) which is a visualization technique applied to DTM (Digital Terrain Model) and the respective shapefiles with the geocoordinates of archaeological objects. The LRM allows performing the relief visualization of terrain. The format of LRM is a TIF file and occupies a lot of space of memory, thus, it is not present in this GitHub. The research area is a district of North Portugal named Viana do Castelo and the archaeological object in study is named "mamoa".
 
