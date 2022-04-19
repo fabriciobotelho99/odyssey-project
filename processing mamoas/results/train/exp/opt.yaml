@@ -2,8 +2,8 @@ weights: yolov5s.pt
 cfg: ''
 data: /content/yolov5/data/mamoas.yaml
 hyp: data/hyps/hyp.scratch-low.yaml
-epochs: 350
-batch_size: 8
+epochs: 600
+batch_size: -1
 imgsz: 640
 rect: false
 resume: false
@@ -26,7 +26,7 @@ exist_ok: false
 quad: false
 cos_lr: false
 label_smoothing: 0.0
-patience: 100
+patience: 600
 freeze:
 - 0
 save_period: -1
