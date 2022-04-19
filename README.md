@@ -1,7 +1,7 @@
 # odyssey-project
 Identification of archaeological sites in aerial image using deep learning
 
-## first approach using archaeological data
+## First approach using archaeological data
 This first work was based on this paper, https://doi.org/10.3390/rs14030553, which contains supplementary materials, for example, the dataset and the code used. The authors used the mask R-CNN algorithm, which uses the pixellib library. The Mask R-CNN is based on Fast R-CNN, but while this last one has two outs by the object, bounding boxes and class, the mask R-CNN has three outs, because it has the mask of the object which is a region of interest. 
 
 The dataset is composed of images obtained through a helicopter. Firstly was used the labelme tool to create the annotated data with JSON files in COCO format. 
@@ -17,7 +17,7 @@ The results were not better than the mask R-CNN approach, due to the same reason
 # LiDAR Data
 
 ## Preprocessing
-![image1](https://drive.google.com/file/d/13kJYMnDL3svsPA5nGzFI83KKxdrl6Cqd/view?usp=sharing)
+![image1](C:\Users\fabri\Desktop\5ano\odyssey-project\preprocessing mamoas\Imagem9.png)
 
 The preprocessing of data has the main objective to get the dataset with images and annotations. Initially, there is a LRM (Local Relief Model) which is a visualization technique applied to DTM (Digital Terrain Model) and the respective shapefiles with the geocoordinates of archaeological objects. The LRM allows performing the relief visualization of terrain. The format of LRM is a TIF file and occupies a lot of space of memory, thus, it is not present in this GitHub. The research area is a district of North Portugal named Viana do Castelo and the archaeological object in study is named "mamoa".
 
