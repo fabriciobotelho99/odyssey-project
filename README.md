@@ -14,7 +14,7 @@ The documentation of pixellib says that maybe we could need about 300 images for
 I decided to use the YOLOv5 algorithm, just to learn and get more experience, and I used exactly the same dataset. But, it was necessary to convert the annotations from COCO format to YOLO format. For that, I wrote the script coco_to_yolo.ipynb which read the JSON files and gets all relevant information, mainly the classes ID and bounding boxes coordinates. These bounding boxes have a format: xmin, ymin, width, height in COCO format, while the yolo format is: x_center, y_center, width_yolo, height_yolo. Note that these values of yolo are normalized, so I divided the original values by the dimensions of images.
 The results were not better than the mask R-CNN approach, due to the same reason, and the other important problem is related to the data unbalanced because we have 124 images to ruined structures, 68 of qanats and 94 of mounded sites. 
 
-#LiDAR Data
+# LiDAR Data
 
 ## Preprocessing
 ![image1](https://drive.google.com/file/d/13kJYMnDL3svsPA5nGzFI83KKxdrl6Cqd/view?usp=sharing)
