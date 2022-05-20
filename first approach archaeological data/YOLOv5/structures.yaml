@@ -1,6 +1,0 @@
-train: /content/drive/MyDrive/yolov5 dataset/Images/Train
-val: /content/drive/MyDrive/yolov5 dataset/Images/Valid
-
-nc: 3	
-
-names: ['qanat', 'mounded sites', 'ruined structure']
