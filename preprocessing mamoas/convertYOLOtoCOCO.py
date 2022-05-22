@@ -23,15 +23,13 @@ def createJSON(save, label, coordinates, name, height, width):
 	dictionary = {
     "version" : "4.5.7",
     "flags" : {},
-    "shapes" : [
-    	shape
-    ],
-    "imagePath" : name, 
+    "shapes" : shape,
+    "imagePath" : name+".jpg", 
     "imageHeight" : height,
     "imageWidth" : width
 	}
   
-	with open(save+"/"+name, "w") as outfile:
+	with open(save+"/"+name+".json" , "w") as outfile:
 	    json.dump(dictionary, outfile, indent=4)
 
 def readYOLOannotations(src, h, w):
@@ -93,7 +91,7 @@ for item in files:
 		h = img.shape[0]
 		w = img.shape[1]
 		name, coord, height, width = readYOLOannotations(path_src+"/"+item, h, w)
-		createJSON(save_path, name, coord, name_file+".json", height, width)
+		createJSON(save_path, name, coord, name_file, height, width)
 	else:
 		img = cv2.imread(path_src + "/" + item)
 		#print(path_src + "/" + item)

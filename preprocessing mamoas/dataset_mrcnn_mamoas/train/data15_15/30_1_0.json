@@ -2,34 +2,32 @@
     "version": "4.5.7",
     "flags": {},
     "shapes": [
-        [
-            {
-                "label": "mamoa",
-                "points": [
-                    [
-                        580.60625,
-                        436.359375
-                    ],
-                    [
-                        610.79375,
-                        436.359375
-                    ],
-                    [
-                        610.79375,
-                        466.453125
-                    ],
-                    [
-                        580.60625,
-                        466.453125
-                    ]
+        {
+            "label": "mamoa",
+            "points": [
+                [
+                    580.60625,
+                    436.359375
                 ],
-                "group_id": null,
-                "shape_type": "polygon",
-                "flags": {}
-            }
-        ]
+                [
+                    610.79375,
+                    436.359375
+                ],
+                [
+                    610.79375,
+                    466.453125
+                ],
+                [
+                    580.60625,
+                    466.453125
+                ]
+            ],
+            "group_id": null,
+            "shape_type": "polygon",
+            "flags": {}
+        }
     ],
-    "imagePath": "30_1_0.json",
+    "imagePath": "30_1_0.jpg",
     "imageHeight": 642,
     "imageWidth": 644
 }
