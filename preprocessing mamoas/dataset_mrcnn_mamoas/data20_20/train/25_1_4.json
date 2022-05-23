@@ -1,0 +1,33 @@
+{
+    "version": "4.5.7",
+    "flags": {},
+    "shapes": [
+        {
+            "label": "mamoa",
+            "points": [
+                [
+                    382.96875,
+                    304.95
+                ],
+                [
+                    423.28125,
+                    304.95
+                ],
+                [
+                    423.28125,
+                    345.075
+                ],
+                [
+                    382.96875,
+                    345.075
+                ]
+            ],
+            "group_id": null,
+            "shape_type": "polygon",
+            "flags": {}
+        }
+    ],
+    "imagePath": "25_1_4.jpg",
+    "imageHeight": 642,
+    "imageWidth": 645
+}
