@@ -3,6 +3,8 @@ import json
 import os.path
 from pathlib import Path
 import cv2
+import labelme2coco
+
 
 def createJSON(save, label, coordinates, name, height, width):
 	"""
@@ -98,5 +100,3 @@ for item in files:
 		cv2.imwrite(save_path + "/" + item, img)
 
 print("Dataset YOLO converted...")
-#C:/Users/fabri/Desktop/5ano/odyssey-project/preprocessing mamoas/dataset/train/data_15_15
-#C:/Users/fabri/Desktop/olaaa
