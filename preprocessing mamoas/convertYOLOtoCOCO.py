@@ -5,7 +5,6 @@ from pathlib import Path
 import cv2
 import labelme2coco
 
-
 def createJSON(save, label, coordinates, name, height, width):
 	"""
 
@@ -75,6 +74,8 @@ print("Insert path of YOLO files:")
 path_src = str(input())
 print("Save path:")
 save_path = str(input())
+print("Insert JSON name to save:")
+json_name = str(input())
 
 if os.path.exists(path_src) == False:
 	print("This path",path_src,"doesn't exist")
@@ -98,5 +99,13 @@ for item in files:
 		img = cv2.imread(path_src + "/" + item)
 		#print(path_src + "/" + item)
 		cv2.imwrite(save_path + "/" + item, img)
+
+labelme_folder = save_path
+save_json = os.path.dirname(save_path)
+os.chdir(save_json)
+save_json = os.getcwd()
+save_json = str(save_json)
+save_json = save_json.replace("\\", "/")
+labelme2coco.convert(labelme_folder, save_json+"/"+json_name+".json")
 
 print("Dataset YOLO converted...")
