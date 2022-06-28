@@ -20,29 +20,31 @@ The results were not better than the mask R-CNN approach, due to the same reason
 ## Annotation
 ![Imagem9](https://user-images.githubusercontent.com/33499431/164008890-1f9409a9-16c7-4df5-82c7-ec96872ac317.jpg)
 
-The preprocessing of data has the main objective to get the dataset with images and annotations. Initially, there is a LRM (Local Relief Model) which is a visualization technique applied to DTM (Digital Terrain Model) and the respective shapefiles with the geocoordinates of archaeological objects. The LRM allows performing the relief visualization of terrain. The format of LRM is a TIF file and occupies a lot of space of memory, thus, it is not present in this GitHub. The research area is a district of North Portugal named Viana do Castelo and the archaeological object in study is named "mamoa".
+The preprocessing of data has the main objective to get the dataset with images and annotations. Initially, there is a LRM (Local Relief Model) which is a visualization technique applied to DTM (Digital Terrain Model) and the respective shapefiles with the geocoordinates of archaeological objects. The LRM allows performing the relief visualization of terrain. The format of LRM is a TIF file and occupies a lot of space of memory, thus, it is not present in this GitHub. The research area is a district of North Portugal named Viana do Castelo and the archaeological object in study is named 'mamoa'.
 
-Google Earth Engine was used to visualize the LRM and to get the dataset. A first approach was developed the script, "ArchaeologicalObjects_earth_engine.txt", to get an image per mamoa and other images with not mamoa. This dataset could be used with a machine-learning algorithm or with a simple CNN (Convolutional Neural Network). But, in this case, we want to study different approaches using deep learning algorithms, like YOLO and R-CNN. So, the objective is to have one or more mamoas per image with the respective bounding boxes. For this, the script "CreateDataSet_earth_engine.txt" was written. Firstly, real-world coordinates were converted to pixel coordinates. So, the LRM was split into tiles and saved the ones that had the number of mamoas greater than 0. The images are saved with 640x640 pixels of resolution on a scale of 0.5m/px. An important note is that script was written in javaScript language in the google earth engine, and there was a problem with client-server code when I tried to save the images. So this code was rewritten in python language on google colab using the ee library (earth engine), this code is present on "CreateDataset.ipynb" file. Each image has associated a text file with the bounding boxes coordinates in YOLO format. 
+Google Earth Engine was used to visualize the LRM and to get the dataset. A first approach was developed the script, "ArchaeologicalObjects_earth_engine.txt", to get an image per mamoa and other images with not mamoa. This dataset could be used with a machine-learning algorithm or with a simple costum CNN (Convolutional Neural Network). But, in this case, we want to study different approaches using deep learning algorithms, like YOLO and R-CNN. So, the objective is to have one or more mamoas per image with the respective bounding boxes. For this, the script "CreateDataSet_earth_engine.txt" was written. Firstly, real-world coordinates were converted to pixel coordinates. So, the LRM was split into tiles and saved the ones that had the number of mamoas greater than 0. The images are saved with 640x640 pixels of resolution on a scale of 0.5m/px. An important note is that script was written in javaScript language in the google earth engine, and there was a problem with client-server code when I tried to save the images. So this code was rewritten in python language on google colab using the ee library (earth engine), this code is present on "CreateDataset.ipynb" file. Each image has associated a text file with the bounding boxes coordinates in YOLO format. 
 
 The dataset was composed of a total of 80 images and it was split into 60% for train, 20% for validation, and 20% for test, using the splitfolders library. But, this dataset was very small and for deep learning are needed a lot of data. To resolve this the albumentations library was used to augment the train and validation dataset. It was used transpose, horizontal and vertical flip, RGB shift, blur and ColorJitter.
 
+There is an objective to explore different dimensions of bounding boxes. So the annotation was done with these six different dimensions: 15x15, 20x20, 22x22, 25x25, 30x30, 35x35 (meters).  
+
 ## Processing
-To train were used three different algoritms, such as: YOLOv5, Mask R-CNN and custom CNN. YOLOv5 was trainde with normal dataset and with K-Fold cross validation. To this last was used model ensemble to use the models obtainde in final of each fold.
+To train were used three different algorithms, such as YOLOv5, Mask R-CNN and custom CNN. YOLOv5 was trained with a normal dataset and with K-Fold cross-validation. To this last was used model ensemble to use the models obtained in the final of each fold.
 
 The code used YOLOv5 can be found in this GitHub link: https://github.com/ultralytics/yolov5.git
-The code used Mask R-CNN can be foun in this Github link: https://github.com/matterport/Mask_RCNN.git
+The code used Mask R-CNN can be found in this Github link: https://github.com/matterport/Mask_RCNN.git
 
-The train with YOLOv5 and Mask R-CNN was done with Google Colaboratory witch allows to use GPU Tesla K80 or Tesla T4, so this performs the train more quickly and allow use the adequated computacional resources. 
+The train with YOLOv5 and Mask R-CNN was done with Google Colaboratory which allows to use GPU Tesla K80 or Tesla T4, so this performs the train more quickly and allows the use of the adequated computational resources. 
 
-YOLOv5 uses pytorch and Mask R-CNN uses Tensorflow.
+YOLOv5 uses PyTorch and Mask R-CNN uses Tensorflow.
 CNN was used with Keras and TensorFlow.
 
-In case of YOLOv5 and Mask R-CNN was used pretrained models, so the train was done by transfer learning. This choice was done because this approach has advantages and the dataset is small. It was used 'yolov5s.pt' (small) and 'mask_rcnn_coco.h5'.
+In case of YOLOv5 and Mask R-CNN was used pre-trained models, so the train was done by transfer learning. This choice was done because this approach has advantages and the dataset is small. It was used 'yolov5s.pt' (small) and 'mask_rcnn_coco.h5'.
 
-The train with CNN was very fast, because the images are in gray scale and are very small. Note that in this case each image represents a mamoa. After got the results with YOLO and Mask R-CNN and the study with different dimentions of bounding boxes done, it was found that 20x20 meters had good results, so this dimention was used to images in custom CNN algorithm. The images were croppen with a scale 0.5m/px, so these images has 40x40 px of dimention.
+The train with CNN was very fast because the images are in grayscale and are very small. Note that in this case, each image represents a mamoa. After getting the results with YOLO and Mask R-CNN and the study with different dimensions of bounding boxes done, it was found that 20x20 meters had good results, so this dimension was used to images in the custom CNN algorithm. The images were cropped with a scale of 0.5m/px, so these images have 40x40 px of dimension.
 
 
-The next image represents a result of detect after train with YOLOv5.
+The next image represents an example of a result of detection after the train with YOLOv5.
 ![51_2](https://github.com/fabriciobotelho99/odyssey-project/blob/135bcccf801c542861babe2525e28a6124e3ddef/processing%20mamoas/51_2.jpg)
 
 
