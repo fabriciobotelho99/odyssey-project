@@ -17,7 +17,7 @@ The results were not better than the mask R-CNN approach, due to the same reason
 
 # LiDAR Data
 
-## Preprocessing
+## Annotation
 ![Imagem9](https://user-images.githubusercontent.com/33499431/164008890-1f9409a9-16c7-4df5-82c7-ec96872ac317.jpg)
 
 The preprocessing of data has the main objective to get the dataset with images and annotations. Initially, there is a LRM (Local Relief Model) which is a visualization technique applied to DTM (Digital Terrain Model) and the respective shapefiles with the geocoordinates of archaeological objects. The LRM allows performing the relief visualization of terrain. The format of LRM is a TIF file and occupies a lot of space of memory, thus, it is not present in this GitHub. The research area is a district of North Portugal named Viana do Castelo and the archaeological object in study is named "mamoa".
@@ -27,6 +27,24 @@ Google Earth Engine was used to visualize the LRM and to get the dataset. A firs
 The dataset was composed of a total of 80 images and it was split into 60% for train, 20% for validation, and 20% for test, using the splitfolders library. But, this dataset was very small and for deep learning are needed a lot of data. To resolve this the albumentations library was used to augment the train and validation dataset. It was used transpose, horizontal and vertical flip, RGB shift, blur and ColorJitter.
 
 ## Processing
+To train were used three different algoritms, such as: YOLOv5, Mask R-CNN and custom CNN. YOLOv5 was trainde with normal dataset and with K-Fold cross validation. To this last was used model ensemble to use the models obtainde in final of each fold.
+
+The code used YOLOv5 can be found in this GitHub link: https://github.com/ultralytics/yolov5.git
+The code used Mask R-CNN can be foun in this Github link: https://github.com/matterport/Mask_RCNN.git
+
+The train with YOLOv5 and Mask R-CNN was done with Google Colaboratory witch allows to use GPU Tesla K80 or Tesla T4, so this performs the train more quickly and allow use the adequated computacional resources. 
+
+YOLOv5 uses pytorch and Mask R-CNN uses Tensorflow.
+CNN was used with Keras and TensorFlow.
+
+In case of YOLOv5 and Mask R-CNN was used pretrained models, so the train was done by transfer learning. This choice was done because this approach has advantages and the dataset is small. It was used 'yolov5s.pt' (small) and 'mask_rcnn_coco.h5'.
+
+The train with CNN was very fast, because the images are in gray scale and are very small. Note that in this case each image represents a mamoa. After got the results with YOLO and Mask R-CNN and the study with different dimentions of bounding boxes done, it was found that 20x20 meters had good results, so this dimention was used to images in custom CNN algorithm. The images were croppen with a scale 0.5m/px, so these images has 40x40 px of dimention.
+
+
+The next image represents a result of detect after train with YOLOv5.
+![51_2]()
+
 
 
 ## LRM Image Inference
