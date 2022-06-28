@@ -45,11 +45,17 @@ The train with CNN was very fast because the images are in grayscale and are ver
 
 
 The next image represents an example of a result of detection after the train with YOLOv5.
-![51_2](https://github.com/fabriciobotelho99/odyssey-project/blob/135bcccf801c542861babe2525e28a6124e3ddef/processing%20mamoas/51_2.jpg)[width: 200px]
+![51_2](https://github.com/fabriciobotelho99/odyssey-project/blob/135bcccf801c542861babe2525e28a6124e3ddef/processing%20mamoas/51_2.jpg)
 
 
 
 ## LRM Image Inference
+After obtaining the models is possible to use them to do the inference on the LRM image. The objective is to use these models with the three algorithms to evaluate their performance and maybe found new objects on the map not found before by humans. The K-fold cross-validation with YOLOv5 had good results and can be used.
 
-https://uapt33090-my.sharepoint.com/:f:/g/personal/fabriciobotelho_ua_pt/EkkEsBrAW9BMqK81DDKxEDQBLQUudfsYd3JYZP4MWR7sKg?e=zmnaZu
+This part of the work is performed by a program that has an interation with a user and asks him about What is the algorithm and the step to be used. This program has a directory of the project with the models and some packages to be used. This directory must have the LRM images. In this case, to work offline (more quickly) without the google earth engine, it was extracted the LRM image with a scale of 0.5m/px. To do this the total image was divided into tiles and then locally it was used the concatenation of all blocks. There was a problem with the allocation of memory of the computer, so the image stayed divided into two parts. In this GitHub, these images are not present, because are large files. So it can be founded in this link one drive: https://uapt33090-my.sharepoint.com/:f:/g/personal/fabriciobotelho_ua_pt/EkkEsBrAW9BMqK81DDKxEDQBLQUudfsYd3JYZP4MWR7sKg?e=zmnaZu
 
+
+It used a sliding window with a certain step. The step value is a percentage of the sliding window (horizontal and vertical) and this is used to prevent the cut of objects on the image/window. To study this, it was used 50% which means an overlap of images and 20%. To CNN was used 20% and 50%. To Mask R-CNN and YOLOv5 were used a 50% and 100% (without slide).
+
+Firstly it was used the CNN model to predict just a region of a map to see the behavior of a program. This region is named Arcos de Valdevez and was found 85 mamoas before.
+After this, the models with YOLOv5 and Mask R-CNN were used to do the inference on every image.
