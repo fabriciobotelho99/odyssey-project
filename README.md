@@ -45,7 +45,7 @@ The train with CNN was very fast because the images are in grayscale and are ver
 
 
 The next image represents an example of a result of detection after the train with YOLOv5.
-![51_2](https://github.com/fabriciobotelho99/odyssey-project/blob/135bcccf801c542861babe2525e28a6124e3ddef/processing%20mamoas/51_2.jpg){ width: 200px;}
+![51_2](https://github.com/fabriciobotelho99/odyssey-project/blob/135bcccf801c542861babe2525e28a6124e3ddef/processing%20mamoas/51_2.jpg)[width: 200px]
 
 
 
